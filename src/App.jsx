@@ -8,7 +8,6 @@ import { useResumeData } from "./hooks/useResumeData.js";
 
 const TABS = [
   { id: "edit", label: "Edit" },
-  { id: "match", label: "Job Match" },
   { id: "preview", label: "Preview" },
 ];
 
@@ -67,12 +66,6 @@ export default function App() {
             </p>
           </div>
         </section>
-
-        {/* <section
-          className={`no-print w-full border-r border-slate-200 lg:block lg:w-[340px] lg:shrink-0
-            dark:border-slate-800 ${tab === "match" ? "block" : "hidden"}`}
-        >
-        </section> */}
 
         <section
           className={`min-w-0 flex-1 lg:flex ${tab === "preview" ? "flex" : "hidden lg:flex"}`}

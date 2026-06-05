@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#555555",
     textAlign: "center",
-    marginBottom: 18,
+    marginBottom: 8,
   },
   contactLink: {
     color: "#1e3a5f",
@@ -150,11 +150,11 @@ function ContactLine({ data }) {
   if (filled(data.location)) {
     parts.push(<Text key="loc">{data.location}</Text>);
   }
-  if (filled(data.email)) {
-    parts.push(<Text key="email">{data.email}</Text>);
-  }
   if (filled(data.phone)) {
     parts.push(<Text key="phone">{data.phone}</Text>);
+  }
+  if (filled(data.email)) {
+    parts.push(<Text key="email">{data.email}</Text>);
   }
   if (filled(data.linkedin)) {
     parts.push(

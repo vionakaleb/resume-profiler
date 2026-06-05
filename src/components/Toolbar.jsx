@@ -112,45 +112,32 @@ export default function Toolbar({
         </div>
       </div>
 
-      <input
-        ref={pdfInput}
-        type="file"
-        accept="application/pdf,.pdf"
-        hidden
-        onChange={handlePdf}
-      />
-      <input
-        ref={jsonInput}
-        type="file"
-        accept="application/json,.json"
-        hidden
-        onChange={handleJson}
-      />
+      <div className="flex flex-row gap-2">
+        <input
+          ref={pdfInput}
+          type="file"
+          accept="application/pdf,.pdf"
+          hidden
+          onChange={handlePdf}
+        />
+        <input
+          ref={jsonInput}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={handleJson}
+        />
 
-      <Button variant="subtle" onClick={() => pdfInput.current?.click()}>
-        Import LinkedIn PDF
-      </Button>
-      {/* <Button variant="ghost" onClick={() => jsonInput.current?.click()}>
-        Load
-      </Button>
-      <Button
-        variant="ghost"
-        onClick={() =>
-          downloadFile(
-            "resume-data.json",
-            JSON.stringify(data, null, 2),
-            "application/json",
-          )
-        }
-      >
-        Save
-      </Button> */}
-      <Button variant="primary" onClick={handleExport} disabled={exporting}>
-        {exporting ? "Generating..." : "Export PDF"}
-      </Button>
-      <Button variant="outline" onClick={onToggleTheme} title="Toggle theme">
-        {theme === "dark" ? "☀ Light" : "☾ Dark"}
-      </Button>
+        <Button variant="subtle" onClick={() => pdfInput.current?.click()}>
+          Import LinkedIn PDF
+        </Button>
+        <Button variant="primary" onClick={handleExport} disabled={exporting}>
+          {exporting ? "Generating..." : "Export PDF"}
+        </Button>
+        <Button variant="outline" onClick={onToggleTheme} title="Toggle theme">
+          {theme === "dark" ? "☀" : "☾"}
+        </Button>
+      </div>
     </header>
   );
 }
