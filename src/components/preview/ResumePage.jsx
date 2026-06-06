@@ -109,6 +109,9 @@ export default function ResumePage({ data }) {
   const skills = data.skills.filter((s) => filled(s.label) || filled(s.value));
   const experience = data.experience.filter(entryHasContent);
   const education = data.education.filter(entryHasContent);
+  const certifications = (data.certifications || []).filter(entryHasContent);
+  const achievements = (data.achievements || []).filter(entryHasContent);
+  const projects = (data.projects || []).filter(entryHasContent);
   const languages = data.languages.filter(
     (l) => filled(l.name) || filled(l.level),
   );
@@ -136,7 +139,7 @@ export default function ResumePage({ data }) {
 
       {experience.length > 0 && (
         <>
-          <SectionHeading>Professional Experience</SectionHeading>
+          <SectionHeading>Experience</SectionHeading>
           {experience.map((entry, index) => (
             <Entry key={index} entry={entry} />
           ))}
@@ -147,6 +150,33 @@ export default function ResumePage({ data }) {
         <>
           <SectionHeading>Education</SectionHeading>
           {education.map((entry, index) => (
+            <Entry key={index} entry={entry} />
+          ))}
+        </>
+      )}
+
+      {certifications.length > 0 && (
+        <>
+          <SectionHeading>Certifications</SectionHeading>
+          {certifications.map((entry, index) => (
+            <Entry key={index} entry={entry} />
+          ))}
+        </>
+      )}
+
+      {achievements.length > 0 && (
+        <>
+          <SectionHeading>Achievements</SectionHeading>
+          {achievements.map((entry, index) => (
+            <Entry key={index} entry={entry} />
+          ))}
+        </>
+      )}
+
+      {projects.length > 0 && (
+        <>
+          <SectionHeading>Projects</SectionHeading>
+          {projects.map((entry, index) => (
             <Entry key={index} entry={entry} />
           ))}
         </>

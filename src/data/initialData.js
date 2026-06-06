@@ -40,6 +40,9 @@ export const initialData = {
       ],
     },
   ],
+  certifications: [],
+  achievements: [],
+  projects: [],
   skills: [
     { label: "Languages", value: "TypeScript, JavaScript, Python, PHP, SQL" },
   ],

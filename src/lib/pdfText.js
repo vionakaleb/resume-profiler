@@ -16,6 +16,7 @@ export async function extractPdfItems(file) {
       .map((item) => ({
         x: item.transform[4],
         y: viewport.height - item.transform[5],
+        width: item.width || 0,
         text: item.str,
       }));
     pages.push({ width: viewport.width, items });

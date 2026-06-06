@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import Button from "./ui/Button.jsx";
 import { parseLinkedInPdf } from "../lib/linkedinParser.js";
+import { parseResumePdf } from "../lib/resumePdfParser.js";
 import { exportResumePdf } from "../lib/exportPdf.jsx";
 
 function downloadFile(name, text, type) {
@@ -24,6 +25,7 @@ export default function Toolbar({
   onReset,
 }) {
   const pdfInput = useRef(null);
+  const resumePdfInput = useRef(null);
   const jsonInput = useRef(null);
   const [status, setStatus] = useState(null);
   const [exporting, setExporting] = useState(false);
@@ -44,6 +46,33 @@ export default function Toolbar({
       setStatus({
         kind: "error",
         text: error.message || "Could not read the PDF.",
+      });
+    }
+  };
+
+  const handleResumePdf = async (event) => {
+    const file = event.target.files[0];
+    event.target.value = "";
+    if (!file) return;
+    setStatus({ kind: "info", text: "Reading resume PDF..." });
+    try {
+      const { parsed, stats } = await parseResumePdf(file);
+      onLoadJson(parsed);
+      const summary = [
+        `${stats.experience} experience`,
+        `${stats.education} education`,
+        `${stats.certifications} certifications`,
+        `${stats.achievements} achievements`,
+        `${stats.projects} projects`,
+      ].join(", ");
+      setStatus({
+        kind: "ok",
+        text: `Imported ${summary}. Please review.`,
+      });
+    } catch (error) {
+      setStatus({
+        kind: "error",
+        text: error.message || "Could not read the resume PDF.",
       });
     }
   };
@@ -131,6 +160,13 @@ export default function Toolbar({
           onChange={handlePdf}
         />
         <input
+          ref={resumePdfInput}
+          type="file"
+          accept="application/pdf,.pdf"
+          hidden
+          onChange={handleResumePdf}
+        />
+        <input
           ref={jsonInput}
           type="file"
           accept="application/json,.json"
@@ -139,7 +175,14 @@ export default function Toolbar({
         />
 
         <Button variant="subtle" onClick={() => pdfInput.current?.click()}>
-          Import LinkedIn PDF
+          Load LinkedIn
+        </Button>
+        <Button
+          variant="subtle"
+          onClick={() => resumePdfInput.current?.click()}
+          title="Import a PDF previously exported by this app"
+        >
+          Import PDF
         </Button>
         <Button variant="primary" onClick={handleExport} disabled={exporting}>
           {exporting ? "Generating..." : "Export PDF"}

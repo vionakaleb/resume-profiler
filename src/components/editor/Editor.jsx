@@ -25,6 +25,30 @@ export default function Editor({ data, update }) {
         data={data}
         update={update}
       />
+      <EntryListForm
+        title="Certifications"
+        field="certifications"
+        orgLabel="Issuer"
+        addLabel="+ Add certification"
+        data={data}
+        update={update}
+      />
+      <EntryListForm
+        title="Achievements"
+        field="achievements"
+        orgLabel="Issuer"
+        addLabel="+ Add achievement"
+        data={data}
+        update={update}
+      />
+      <EntryListForm
+        title="Projects"
+        field="projects"
+        orgLabel="Role or Stack"
+        addLabel="+ Add project"
+        data={data}
+        update={update}
+      />
       <SkillsForm data={data} update={update} />
       <LanguagesForm data={data} update={update} />
     </div>

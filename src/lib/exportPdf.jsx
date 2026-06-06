@@ -232,6 +232,9 @@ function ResumeDocument({ data }) {
   const skills = data.skills.filter((s) => filled(s.label) || filled(s.value));
   const experience = data.experience.filter(entryHasContent);
   const education = data.education.filter(entryHasContent);
+  const certifications = (data.certifications || []).filter(entryHasContent);
+  const achievements = (data.achievements || []).filter(entryHasContent);
+  const projects = (data.projects || []).filter(entryHasContent);
   const languages = data.languages.filter(
     (l) => filled(l.name) || filled(l.level),
   );
@@ -257,7 +260,7 @@ function ResumeDocument({ data }) {
 
         {experience.length > 0 && (
           <>
-            <Text style={styles.section}>Professional Experience</Text>
+            <Text style={styles.section}>Experience</Text>
             {experience.map((entry, index) => (
               <Entry key={index} entry={entry} />
             ))}
@@ -268,6 +271,33 @@ function ResumeDocument({ data }) {
           <>
             <Text style={styles.section}>Education</Text>
             {education.map((entry, index) => (
+              <Entry key={index} entry={entry} />
+            ))}
+          </>
+        )}
+
+        {certifications.length > 0 && (
+          <>
+            <Text style={styles.section}>Certifications</Text>
+            {certifications.map((entry, index) => (
+              <Entry key={index} entry={entry} />
+            ))}
+          </>
+        )}
+
+        {achievements.length > 0 && (
+          <>
+            <Text style={styles.section}>Achievements</Text>
+            {achievements.map((entry, index) => (
+              <Entry key={index} entry={entry} />
+            ))}
+          </>
+        )}
+
+        {projects.length > 0 && (
+          <>
+            <Text style={styles.section}>Projects</Text>
+            {projects.map((entry, index) => (
               <Entry key={index} entry={entry} />
             ))}
           </>

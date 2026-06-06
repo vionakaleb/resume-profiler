@@ -1,18 +1,18 @@
 import { STOPWORDS, KNOWN_SKILLS } from "./skills.js";
 
 function resumeToText(data) {
+  const flattenEntries = (list) =>
+    (list || []).flatMap((e) => [e.title, e.org, e.location, ...(e.bullets || [])]);
   const parts = [
     data.name,
     data.headline,
     data.summary,
     ...data.skills.map((s) => `${s.label} ${s.value}`),
-    ...data.experience.flatMap((e) => [
-      e.title,
-      e.org,
-      e.location,
-      ...(e.bullets || []),
-    ]),
-    ...data.education.flatMap((e) => [e.title, e.org, ...(e.bullets || [])]),
+    ...flattenEntries(data.experience),
+    ...flattenEntries(data.education),
+    ...flattenEntries(data.certifications),
+    ...flattenEntries(data.achievements),
+    ...flattenEntries(data.projects),
     ...data.languages.map((l) => `${l.name} ${l.level}`),
   ];
   return parts.join(" ").toLowerCase();
