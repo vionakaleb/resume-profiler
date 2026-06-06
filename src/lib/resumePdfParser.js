@@ -27,7 +27,9 @@ const SEP_REGEX = /\s*\|\s*/;
 function groupLines(items) {
   const rows = [];
   for (const item of items) {
-    const existing = rows.find((row) => Math.abs(row.y - item.y) <= LINE_TOLERANCE);
+    const existing = rows.find(
+      (row) => Math.abs(row.y - item.y) <= LINE_TOLERANCE,
+    );
     if (existing) {
       existing.parts.push(item);
     } else {
@@ -76,8 +78,9 @@ function cleanText(text) {
 }
 
 function collapseLetterSpacing(text) {
-  return text.replace(/\b([A-Za-z]{1,2})(?:[ ]([A-Za-z]{1,2})){2,}\b/g, (match) =>
-    match.replace(/[ ]/g, ""),
+  return text.replace(
+    /\b([A-Za-z]{1,2})(?:[ ]([A-Za-z]{1,2})){2,}\b/g,
+    (match) => match.replace(/[ ]/g, ""),
   );
 }
 
@@ -129,33 +132,62 @@ function stripBullet(text) {
   return cleanText(text.replace(/^[\u2022\-]\s+/, ""));
 }
 
+function looksLikeHeadline(text) {
+  if (!text) return false;
+  if (/@/.test(text)) return false;
+  if (/https?:\/\//i.test(text)) return false;
+  if (/\.(com|net|org|io|dev|app|me|co)\b/i.test(text)) return false;
+  if (/[a-z]/.test(text)) return false;
+  if (!/[A-Z]/.test(text)) return false;
+  return true;
+}
+
 function parseHeader(lines, firstHeadingIndex) {
-  const preheader = lines.slice(0, firstHeadingIndex).filter((l) => !isPageFooter(l.text));
+  const preheader = lines
+    .slice(0, firstHeadingIndex)
+    .filter((l) => !isPageFooter(l.text));
   if (!preheader.length) {
     return { name: "", headline: "", contact: [] };
   }
 
-  const name = preheader[0].text.replace(/\t/g, " ").replace(/\s+/g, " ").trim();
+  const name = preheader[0].text
+    .replace(/\t/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   let headline = "";
   let contactStart = 1;
 
-  if (preheader.length > 1 && !SEP_REGEX.test(preheader[1].text)) {
-    const second = preheader[1].text.trim();
-    if (second && second === second.toUpperCase()) {
-      headline = collapseLetterSpacing(second).replace(/\t/g, " ").replace(/\s+/g, " ").trim();
+  if (preheader.length > 1) {
+    const secondCollapsed = collapseLetterSpacing(preheader[1].text)
+      .replace(/\t/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (looksLikeHeadline(secondCollapsed)) {
+      headline = secondCollapsed;
       contactStart = 2;
     }
   }
 
-  const contactLines = preheader.slice(contactStart).map((l) => cleanText(l.text));
+  const contactLines = preheader
+    .slice(contactStart)
+    .map((l) => cleanText(l.text));
   const contactText = contactLines.join(" | ");
-  const contactParts = contactText.split(SEP_REGEX).map((p) => p.trim()).filter(Boolean);
+  const contactParts = contactText
+    .split(SEP_REGEX)
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   return { name, headline, contact: contactParts };
 }
 
 function classifyContact(parts) {
-  const result = { location: "", phone: "", email: "", linkedin: "", website: "" };
+  const result = {
+    location: "",
+    phone: "",
+    email: "",
+    linkedin: "",
+    website: "",
+  };
   for (const part of parts) {
     if (!part) continue;
     if (/@/.test(part) && !/^https?:/i.test(part)) {
@@ -166,7 +198,10 @@ function classifyContact(parts) {
       result.linkedin = part;
       continue;
     }
-    if (/^https?:\/\//i.test(part) || /\.(com|net|org|io|dev|app|me|co)(\/|$)/i.test(part)) {
+    if (
+      /^https?:\/\//i.test(part) ||
+      /\.(com|net|org|io|dev|app|me|co)(\/|$)/i.test(part)
+    ) {
       result.website = part;
       continue;
     }
@@ -234,7 +269,8 @@ function parseEntries(blockLines) {
     }
 
     const next = blockLines[i + 1];
-    const looksLikeHead = DATE_TAIL.test(text) ||
+    const looksLikeHead =
+      DATE_TAIL.test(text) ||
       (next && SEP_REGEX.test(next.text) && !isBulletLine(next.text));
 
     if (looksLikeHead || !current) {
@@ -334,7 +370,9 @@ export async function parseResumePdf(file) {
     summary: blocks.summary ? parseSummary(blocks.summary) : "",
     experience: blocks.experience ? parseEntries(blocks.experience) : [],
     education: blocks.education ? parseEntries(blocks.education) : [],
-    certifications: blocks.certifications ? parseEntries(blocks.certifications) : [],
+    certifications: blocks.certifications
+      ? parseEntries(blocks.certifications)
+      : [],
     achievements: blocks.achievements ? parseEntries(blocks.achievements) : [],
     projects: blocks.projects ? parseEntries(blocks.projects) : [],
     skills: blocks.skills ? parseSkills(blocks.skills) : [],
