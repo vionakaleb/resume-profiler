@@ -45,7 +45,7 @@ export default function App() {
 
       <main className="flex min-h-0 flex-1">
         <section
-          className={`thin-scroll w-full overflow-auto border-r border-slate-200 bg-slate-50 p-4
+          className={`w-full overflow-auto border-r border-slate-200 bg-slate-50 p-4
             lg:block lg:w-[420px] lg:shrink-0 dark:border-slate-800 dark:bg-slate-900/40
             ${tab === "edit" ? "block" : "hidden"}`}
         >

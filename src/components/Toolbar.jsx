@@ -174,27 +174,43 @@ export default function Toolbar({
           onChange={handleJson}
         />
 
-        <Button variant="subtle" onClick={() => pdfInput.current?.click()}>
+        <Button
+          className="px-2 py-1 md:px-4 md:py-2"
+          variant="subtle"
+          onClick={() => pdfInput.current?.click()}
+        >
           Load LinkedIn
         </Button>
         <Button
+          className="px-2 py-1 md:px-4 md:py-2"
           variant="subtle"
           onClick={() => resumePdfInput.current?.click()}
           title="Import a PDF previously exported by this app"
         >
           Import PDF
         </Button>
-        <Button variant="primary" onClick={handleExport} disabled={exporting}>
+        <Button
+          className="px-2 py-1 md:px-4 md:py-2"
+          variant="primary"
+          onClick={handleExport}
+          disabled={exporting}
+        >
           {exporting ? "Generating..." : "Export PDF"}
         </Button>
         <Button
+          className="px-2 py-1 md:px-4 md:py-2"
           variant="outline"
           onClick={handleReset}
           title="Reset to initial data"
         >
-          Reset
+          🔄
         </Button>
-        <Button variant="outline" onClick={onToggleTheme} title="Toggle theme">
+        <Button
+          className="md:block hidden px-2 py-1 md:px-4 md:py-2"
+          variant="outline"
+          onClick={onToggleTheme}
+          title="Toggle theme"
+        >
           {theme === "dark" ? "☀" : "☾"}
         </Button>
       </div>

@@ -14,7 +14,7 @@ export function TextField({ label, value, onChange, placeholder }) {
 
 export function TextAreaField({ label, value, onChange, placeholder, rows = 4 }) {
   return (
-    <label className="block">
+    <label className="block w-full">
       {label && <span className="label-base">{label}</span>}
       <textarea
         className="input-base resize-y leading-relaxed"

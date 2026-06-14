@@ -81,7 +81,7 @@ export default function JobMatchPanel({ data }) {
 
   return (
     <Section title="Job Description Match" badge={result?.overall}>
-      <div className="thin-scroll flex flex-col overflow-auto p-5">
+      <div className="flex flex-col overflow-auto p-5">
         <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">
           Job Description Match
         </h2>
