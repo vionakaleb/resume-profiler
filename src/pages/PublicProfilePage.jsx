@@ -122,7 +122,21 @@ export default function PublicProfilePage() {
       </main>
 
       <footer className="border-t border-slate-800 py-8 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} {data.name || username}
+        <div className="mx-auto max-w-7xl px-6 pb-10 pt-4">
+          <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+            © {new Date().getFullYear()} - {data.name || username}
+          </p>
+          <p>
+            <a
+              href="https://viona-kaleb.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400"
+            >
+              Generated with Viona's Resume Builder
+            </a>
+          </p>
+        </div>
       </footer>
     </div>
   );
