@@ -46,21 +46,92 @@ The resume page keeps the original professional navy design so the exported PDF 
 ATS-friendly. To recolor the resume itself, change `--resume-accent` in
 `src/styles/resume.css` (for example set it to `#a78bfa` to match the app).
 
-## Project layout
+## Project Structure
 
 ```
 src/
-  data/initialData.js        seed resume content
+  api/
+    client.js          # fetch wrapper, auto JWT refresh on 401
+    tokens.js          # localStorage token helpers
+    auth.js            # /auth/register, /auth/login, /auth/me, DELETE /auth/me
+    resumes.js         # /resumes CRUD + /users/{username}/public
+  auth/
+    AuthContext.jsx    # user state, login, register, logout, deleteAccount
+    ProtectedRoute.jsx # redirects to /login if not authed
+  hooks/
+    useApiResumeData.js  # replaces useResumeData, syncs with API (debounced)
   lib/
-    pdfText.js               pdf.js text extraction
-    linkedinParser.js        LinkedIn PDF -> resume fields
-    atsScore.js              job-description matching
-    dates.js, skills.js      helpers and dictionaries
-  hooks/                     theme + resume state
+    username.js        # derives username from email (frontend-only helper)
+  pages/
+    LoginPage.jsx
+    RegisterPage.jsx
+    EditorPage.jsx
+    PublicProfilePage.jsx
   components/
-    editor/                  the form panels
-    preview/                 the A4 resume page
-    jobmatch/                the score panel
-    Toolbar.jsx              import / save / load / export / theme
-  App.jsx                    layout and wiring
+    public/
+      PublicNav.jsx
+      sections.jsx     # Home, About, Experience, Education, Certifications, Projects, Skills, Contact
+      icons.jsx
+    Toolbar.jsx
+     indicator, copy public link
+  App.jsx
 ```
+
+### Env var
+
+Create a `.env` (or `.env.local`) at the project root with:
+
+```
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+## Routes
+
+| Path         | Access    | Purpose                   |
+| ------------ | --------- | ------------------------- |
+| `/login`     | public    | Sign in                   |
+| `/register`  | public    | Create account            |
+| `/`          | protected | Editor (the original app) |
+| `/:username` | public    | Public profile page       |
+
+Reserved usernames that fall through to `/`: `login`, `register`, `logout`, `api`, `admin`, `settings`, `auth`, `resumes`, `ml`, `health`, `_next`, `assets`, `static`.
+
+## Auth flow
+
+1. `POST /auth/register` creates the account.
+2. The frontend then calls `POST /auth/login` to get `access_token` + `refresh_token` (both saved to `localStorage`).
+3. `GET /auth/me` loads the current user. The editor lists resumes via `GET /resumes` and either opens the first one or creates a new one with `POST /resumes`.
+4. Edits debounce-save through `PATCH /resumes/{id}` (800ms).
+5. On any 401 with a valid refresh token, the client transparently calls `POST /auth/refresh` and retries once.
+6. Logout clears tokens locally. Delete account calls `DELETE /auth/me` then clears tokens.
+
+The exact request/response shapes the client expects:
+
+```
+POST /auth/register  -> { email, password, full_name }
+POST /auth/login     -> { email, password }   returns { access_token, refresh_token }
+POST /auth/refresh   -> { refresh_token }     returns { access_token, refresh_token }
+GET  /auth/me        -> { id, email, full_name, ... }
+DELETE /auth/me      -> 204
+
+GET    /resumes              -> [ { id, title, ... } ]
+POST   /resumes              -> { title, content }   returns full resume
+GET    /resumes/{id}         -> { id, title, content, ... }
+PATCH  /resumes/{id}         -> { content?, title? } partial
+DELETE /resumes/{id}         -> 204
+```
+
+If your backend uses different field names (e.g. `name` instead of `full_name`, or different token field names), the changes are isolated to `src/api/auth.js` and `src/api/client.js`.
+
+## Public profile sections
+
+The page renders sections in this order, hiding any that are empty:
+
+- **Home** — large hero with name + headline, LinkedIn / Projects / Website buttons.
+- **About** — avatar with initials + summary + location.
+- **Experience** — alternating timeline of `data.experience[]`.
+- **Education** — alternating timeline of `data.education[]`.
+- **Certifications & Awards** — two columns, `data.certifications[]` and `data.achievements[]`.
+- **Projects** — card grid of `data.projects[]`. The first bullet that looks like a URL becomes the "Website" link; the location field or first bullet doubles as tech tags (comma/pipe separated).
+- **Skills** — card grid of `data.skills[]` plus a `Languages` row from `data.languages[]`.
+- **Contact** — mailto-based form using `data.email`.
