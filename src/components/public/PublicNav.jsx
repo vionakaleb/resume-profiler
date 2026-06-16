@@ -81,8 +81,15 @@ export default function PublicNav({ name, sections }) {
           onClick={() => setOpen((current) => !current)}
           aria-label="Toggle menu"
         >
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <svg
+            viewBox="0 0 24 24"
+            width="22"
+            height="22"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
             {open ? (
               <>
                 <line x1="18" y1="6" x2="6" y2="18" />
