@@ -1,20 +1,10 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "./ui/Button.jsx";
 import { parseLinkedInPdf } from "../lib/linkedinParser.js";
 import { parseResumePdf } from "../lib/resumePdfParser.js";
 import { exportResumePdf } from "../lib/exportPdf.jsx";
-
-function downloadFile(name, text, type) {
-  const blob = new Blob([text], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
+import { useAuth } from "../auth/AuthContext.jsx";
 
 export default function Toolbar({
   data,
@@ -23,12 +13,17 @@ export default function Toolbar({
   onImport,
   onLoadJson,
   onReset,
+  saveLabel,
+  publicUrl,
 }) {
   const pdfInput = useRef(null);
   const resumePdfInput = useRef(null);
   const jsonInput = useRef(null);
   const [status, setStatus] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logout, deleteAccount } = useAuth();
+  const navigate = useNavigate();
 
   const handlePdf = async (event) => {
     const file = event.target.files[0];
@@ -125,6 +120,35 @@ export default function Toolbar({
     setStatus({ kind: "ok", text: "Resume data reset to initial state." });
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Delete your account and all resume data? This cannot be undone.",
+    );
+    if (!confirmed) return;
+    try {
+      await deleteAccount();
+      navigate("/register", { replace: true });
+    } catch (error) {
+      setStatus({
+        kind: "error",
+        text: error.message || "Could not delete account.",
+      });
+    }
+  };
+
+  const handleCopyPublic = () => {
+    if (!publicUrl) return;
+    navigator.clipboard
+      ?.writeText(publicUrl)
+      .then(() => setStatus({ kind: "ok", text: "Public URL copied." }))
+      .catch(() => setStatus({ kind: "error", text: "Could not copy URL." }));
+  };
+
   const statusColor = {
     ok: "text-emerald-600 dark:text-emerald-400",
     error: "text-rose-600 dark:text-rose-400",
@@ -141,17 +165,19 @@ export default function Toolbar({
           <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100">
             ATS Resume Builder
           </p>
-          {status && (
-            <p
-              className={`text-[11px] font-medium ${statusColor[status.kind]}`}
-            >
+          {status ? (
+            <p className={`text-[11px] font-medium ${statusColor[status.kind]}`}>
               {status.text}
             </p>
-          )}
+          ) : saveLabel ? (
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              {saveLabel}
+            </p>
+          ) : null}
         </div>
       </div>
 
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row flex-wrap items-center gap-2">
         <input
           ref={pdfInput}
           type="file"
@@ -173,6 +199,17 @@ export default function Toolbar({
           hidden
           onChange={handleJson}
         />
+
+        {publicUrl && (
+          <Button
+            className="hidden md:inline-flex px-2 py-1 md:px-4 md:py-2"
+            variant="subtle"
+            onClick={handleCopyPublic}
+            title={publicUrl}
+          >
+            Copy public link
+          </Button>
+        )}
 
         <Button
           className="px-2 py-1 md:px-4 md:py-2"
@@ -213,6 +250,60 @@ export default function Toolbar({
         >
           {theme === "dark" ? "☀" : "☾"}
         </Button>
+
+        <div className="relative">
+          <Button
+            className="px-2 py-1 md:px-4 md:py-2"
+            variant="outline"
+            onClick={() => setMenuOpen((open) => !open)}
+            title={user?.email}
+          >
+            {user?.full_name || user?.email || "Account"}
+            <span className="ml-1 text-xs">▾</span>
+          </Button>
+
+          {menuOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="panel absolute right-0 z-20 mt-1 w-56 rounded-xl p-2 shadow-lg">
+                <p className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 break-all">
+                  {user?.email}
+                </p>
+                {publicUrl && (
+                  <a
+                    href={publicUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    View public page
+                  </a>
+                )}
+                <button
+                  className="block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  Log out
+                </button>
+                <button
+                  className="block w-full rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleDeleteAccount();
+                  }}
+                >
+                  Delete account
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

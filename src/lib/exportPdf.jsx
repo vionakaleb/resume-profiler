@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const filled = (value) => typeof value === "string" && value.trim().length > 0;
+export const filled = (value) => typeof value === "string" && value.trim().length > 0;
 
-function normalizeUrl(url) {
+export function normalizeUrl(url) {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
