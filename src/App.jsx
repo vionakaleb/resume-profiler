@@ -1,79 +1,54 @@
-import { useState } from "react";
-import Toolbar from "./components/Toolbar.jsx";
-import Editor from "./components/editor/Editor.jsx";
-import PreviewPane from "./components/preview/PreviewPane.jsx";
-import JobMatchPanel from "./components/jobmatch/JobMatchPanel.jsx";
-import { useTheme } from "./hooks/useTheme.js";
-import { useResumeData } from "./hooks/useResumeData.js";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext.jsx";
+import ProtectedRoute from "./auth/ProtectedRoute.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
+import EditorPage from "./pages/EditorPage.jsx";
+import PublicProfilePage from "./pages/PublicProfilePage.jsx";
 
-const TABS = [
-  { id: "edit", label: "Edit" },
-  { id: "preview", label: "Preview" },
-];
+const RESERVED = new Set([
+  "login",
+  "register",
+  "logout",
+  "api",
+  "admin",
+  "settings",
+  "auth",
+  "resumes",
+  "ml",
+  "health",
+  "_next",
+  "assets",
+  "static",
+]);
+
+function UsernameRoute() {
+  const { username } = useParams();
+  if (!username || RESERVED.has(username.toLowerCase())) {
+    return <Navigate to="/" replace />;
+  }
+  return <PublicProfilePage />;
+}
 
 export default function App() {
-  const { theme, toggleTheme } = useTheme();
-  const { data, update, importParsed, loadJson, resetData } = useResumeData();
-  const [tab, setTab] = useState("edit");
-
   return (
-    <div className="app-bg flex h-screen flex-col">
-      <Toolbar
-        data={data}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-        onImport={importParsed}
-        onLoadJson={loadJson}
-        onReset={resetData}
-      />
-
-      <nav className="no-print flex gap-1 border-b border-slate-200 bg-white px-3 py-2 lg:hidden dark:border-slate-800 dark:bg-slate-900">
-        {TABS.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setTab(item.id)}
-            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${
-              tab === item.id
-                ? "bg-brand-400 text-white"
-                : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
-
-      <main className="flex min-h-0 flex-1">
-        <section
-          className={`w-full overflow-auto border-r border-slate-200 bg-slate-50 p-4
-            lg:block lg:w-[420px] lg:shrink-0 dark:border-slate-800 dark:bg-slate-900/40
-            ${tab === "edit" ? "block" : "hidden"}`}
-        >
-          <Editor data={data} update={update} />
-          <JobMatchPanel data={data} />
-
-          <div className="mx-auto max-w-7xl px-6 pb-10 pt-4">
-            <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-              © Viona Z. A. Kaleb
-            </p>
-            <p>
-              <a
-                href="https://viona-kaleb.vercel.app/"
-                target="_blank"
-                className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400"
-              >
-                https://viona-kaleb.vercel.app/
-              </a>
-            </p>
-          </div>
-        </section>
-
-        <section
-          className={`min-w-0 flex-1 lg:flex ${tab === "preview" ? "flex" : "hidden lg:flex"}`}
-        >
-          <PreviewPane data={data} />
-        </section>
-      </main>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <EditorPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/:username" element={<UsernameRoute />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
