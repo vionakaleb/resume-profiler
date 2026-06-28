@@ -84,12 +84,12 @@ export default function EditorPage() {
             </p>
             <p>
               <a
-                href="https://viona-kaleb.vercel.app/"
+                href="https://viona-kaleb.com"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400"
               >
-                https://viona-kaleb.vercel.app/
+                https://viona-kaleb.com
               </a>
             </p>
           </div>

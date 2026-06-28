@@ -128,7 +128,7 @@ export default function PublicProfilePage() {
           </p>
           <p>
             <a
-              href="https://viona-kaleb.vercel.app/"
+              href="https://viona-kaleb.com"
               target="_blank"
               rel="noreferrer"
               className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400"
