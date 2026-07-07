@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Button from "../ui/Button.jsx";
+import MicButton from "../ui/MicButton.jsx";
+import SpeakerButton from "../ui/SpeakerButton.jsx";
 import { scoreResume } from "../../lib/atsScore.js";
+import { useVoiceRecognition } from "../../hooks/useVoiceRecognition.js";
+import { useTextToSpeech } from "../../hooks/useTextToSpeech.js";
 import Section from "../ui/Section.jsx";
 
 function scoreColor(value) {
@@ -77,7 +81,56 @@ export default function JobMatchPanel({ data }) {
   const [job, setJob] = useState("");
   const [result, setResult] = useState(null);
 
-  const run = () => setResult(scoreResume(data, job));
+  const { isSpeaking, speakResult, stopSpeaking } = useTextToSpeech();
+
+  const runScore = useCallback(
+    (jobText) => {
+      const textToScore = jobText || job;
+      if (textToScore.trim().length < 30) return null;
+      const scored = scoreResume(data, textToScore);
+      setResult(scored);
+      return scored;
+    },
+    [data, job],
+  );
+
+  const handleScoreCommand = useCallback(
+    (spokenJobText) => {
+      if (spokenJobText && spokenJobText.trim().length >= 30) {
+        setJob(spokenJobText);
+      }
+      const textToUse =
+        spokenJobText && spokenJobText.trim().length >= 30
+          ? spokenJobText
+          : job;
+      if (textToUse.trim().length < 30) return;
+      const scored = scoreResume(data, textToUse);
+      setResult(scored);
+      speakResult(scored);
+    },
+    [data, job, speakResult],
+  );
+
+  const handleTranscript = useCallback((transcript) => {
+    setJob((previous) => {
+      const combined = previous ? previous + " " + transcript : transcript;
+      return combined;
+    });
+  }, []);
+
+  const { isListening, interimText, isSupported, toggleListening } =
+    useVoiceRecognition({
+      onTranscript: handleTranscript,
+      onScoreCommand: handleScoreCommand,
+    });
+
+  const handleReadResult = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+    } else {
+      speakResult(result);
+    }
+  };
 
   return (
     <Section title="Job Description Match" badge={result?.overall}>
@@ -90,16 +143,40 @@ export default function JobMatchPanel({ data }) {
           coverage estimate, not a real applicant tracking system.
         </p>
 
-        <textarea
-          className="input-base mt-3 min-h-[160px] flex-none resize-y leading-relaxed"
-          placeholder="Paste the full job description here..."
-          value={job}
-          onChange={(event) => setJob(event.target.value)}
-        />
+        <div className="relative mt-3">
+          <textarea
+            className="input-base min-h-[160px] w-full flex-none resize-y leading-relaxed pr-12"
+            placeholder="Paste the full job description here..."
+            value={job}
+            onChange={(event) => setJob(event.target.value)}
+          />
+          {isSupported && (
+            <div className="absolute right-2 top-2">
+              <MicButton isListening={isListening} onClick={toggleListening} />
+            </div>
+          )}
+        </div>
+
+        {isListening && (
+          <div className="mt-2 flex items-center gap-2">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-rose-500" />
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Listening... Say{" "}
+              <span className="font-semibold text-brand-600 dark:text-brand-300">
+                &quot;Score my resume&quot;
+              </span>{" "}
+              to run the match.
+            </span>
+          </div>
+        )}
+
+        {interimText && isListening && (
+          <p className="mt-1 text-xs italic text-slate-400">{interimText}</p>
+        )}
 
         <Button
           className="mt-3"
-          onClick={run}
+          onClick={() => runScore()}
           disabled={job.trim().length < 30}
         >
           Score my resume
@@ -135,6 +212,16 @@ export default function JobMatchPanel({ data }) {
                   experience.
                 </p>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <SpeakerButton
+                isSpeaking={isSpeaking}
+                onClick={handleReadResult}
+              />
+              <span className="text-xs text-slate-400">
+                {isSpeaking ? "Reading results..." : "Read results aloud"}
+              </span>
             </div>
 
             <ChipGroup
