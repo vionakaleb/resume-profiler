@@ -194,7 +194,7 @@ export default function JobMatchPanel({ data }) {
           onClick={() => runScore()}
           disabled={job.trim().length < 30}
         >
-          Score my resume
+          Score My Resume
         </Button>
 
         {result === null && job.trim().length >= 30 && (
@@ -235,7 +235,7 @@ export default function JobMatchPanel({ data }) {
                   isSpeaking={isSpeaking}
                   onClick={handleReadResult}
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400">
+                <span className="text-xs text-slate-600 dark:text-slate-400 font-bold">
                   {isSpeaking ? "Reading results..." : "Read results aloud"}
                 </span>
               </div>

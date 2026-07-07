@@ -30,7 +30,7 @@ fills the editor. It is tuned for LinkedIn's own PDF layout and is best-effort, 
 review the result before exporting. LinkedIn descriptions are prose, so each role
 comes in as one or more bullets you can split and tighten.
 
-**Job match score.** Paste a job description and press "Score my resume". You get an
+**Job match score.** Paste a job description and press "Score My Resume". You get an
 overall percentage, matched and missing hard skills, and missing keywords. This is a
 keyword-coverage heuristic to guide your edits. It is not a real applicant tracking
 system, and a high score is not a guarantee of anything.
