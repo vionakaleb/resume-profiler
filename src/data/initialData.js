@@ -6,7 +6,7 @@ export const initialData = {
   location: "Jakarta, Indonesia",
   email: "",
   phone: "",
-  website: "https://viona-kaleb.vercel.app/",
+  website: "https://viona-kaleb.com",
   linkedin: "",
   summary:
     "A frontend-focused Software Engineer with 7+ years of expertise. Building production web applications across banking, fintech, e-commerce and logistics. With deep expertise in Next.js, React, Angular and Vue. Backed by fullstack experience with Node.js, Express, GraphQL and PHP. Founded the frontend system of a UK fintech platform serving 1.2M+ trading accounts. Shipped 3D wayfinding solutions installed across major Singapore landmarks. Now helping digitalize operations across 1,000+ branches at Indonesia's largest state-owned bank. Holds a Master's in Information Technology with a Machine Learning focus.",
