@@ -1,6 +1,7 @@
 import { KNOWN_SKILLS } from "./skills.js";
 
 const MISHEARING_MAP = {
+  cold: "Code",
   "react native": "React Native",
   "react js": "React",
   "react.js": "React",
@@ -13,6 +14,7 @@ const MISHEARING_MAP = {
   "note js": "Node.js",
   "three js": "Three.js",
   "three.js": "Three.js",
+  "few js": "Vue.js",
   "view js": "Vue.js",
   "vue js": "Vue.js",
   "vue.js": "Vue.js",

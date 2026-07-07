@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import Button from "../ui/Button.jsx";
 import MicButton from "../ui/MicButton.jsx";
 import SpeakerButton from "../ui/SpeakerButton.jsx";
+import VoicePicker from "../ui/VoicePicker.jsx";
 import { scoreResume } from "../../lib/atsScore.js";
 import { useVoiceRecognition } from "../../hooks/useVoiceRecognition.js";
 import { useTextToSpeech } from "../../hooks/useTextToSpeech.js";
@@ -81,7 +82,15 @@ export default function JobMatchPanel({ data }) {
   const [job, setJob] = useState("");
   const [result, setResult] = useState(null);
 
-  const { isSpeaking, speakResult, stopSpeaking } = useTextToSpeech();
+  const {
+    isSpeaking,
+    speakResult,
+    stopSpeaking,
+    availableVoices,
+    selectedVoiceName,
+    selectVoice,
+    previewVoice,
+  } = useTextToSpeech();
 
   const runScore = useCallback(
     (jobText) => {
@@ -220,14 +229,23 @@ export default function JobMatchPanel({ data }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <SpeakerButton
+            <div className="space-y-2 flex-col gap-2 rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
+              <div className="flex items-center gap-2">
+                <SpeakerButton
+                  isSpeaking={isSpeaking}
+                  onClick={handleReadResult}
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  {isSpeaking ? "Reading results..." : "Read results aloud"}
+                </span>
+              </div>
+              <VoicePicker
+                voices={availableVoices}
+                selectedVoiceName={selectedVoiceName}
+                onSelect={selectVoice}
+                onPreview={previewVoice}
                 isSpeaking={isSpeaking}
-                onClick={handleReadResult}
               />
-              <span className="text-xs text-slate-400">
-                {isSpeaking ? "Reading results..." : "Read results aloud"}
-              </span>
             </div>
 
             <ChipGroup
