@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { correctSpeechText } from "../lib/speechCorrection.js";
 
 const SCORE_COMMANDS = [
   "score my resume",
@@ -55,34 +56,39 @@ export function useVoiceRecognition({ onTextChange, onScoreCommand }) {
       preExistingTextRef.current = existingText || "";
 
       recognition.onresult = (event) => {
-        let finalPart = "";
-        let interimPart = "";
+        let rawFinal = "";
+        let rawInterim = "";
 
         for (let i = 0; i < event.results.length; i++) {
           const segment = event.results[i];
           if (segment.isFinal) {
-            finalPart += segment[0].transcript;
+            rawFinal += segment[0].transcript;
           } else {
-            interimPart += segment[0].transcript;
+            rawInterim += segment[0].transcript;
           }
         }
 
-        setInterimText(interimPart);
+        const fullRaw = rawFinal + rawInterim;
+        const command = detectScoreCommand(fullRaw);
 
-        const spokenSoFar = finalPart + interimPart;
-        const command = detectScoreCommand(spokenSoFar);
+        const correctedFinal = correctSpeechText(rawFinal);
+        const correctedInterim = correctSpeechText(rawInterim);
+
+        setInterimText(correctedInterim);
 
         if (command) {
           recognition.stop();
-          const cleanSpoken = stripCommand(finalPart, command);
+          const cleanSpoken = stripCommand(correctedFinal, command);
           const merged = mergeText(preExistingTextRef.current, cleanSpoken);
           onTextChange?.(merged);
           onScoreCommand?.(merged);
           return;
         }
 
-        const merged = mergeText(preExistingTextRef.current, finalPart);
-        onTextChange?.(merged + (interimPart ? " " + interimPart : ""));
+        const merged = mergeText(preExistingTextRef.current, correctedFinal);
+        onTextChange?.(
+          merged + (correctedInterim ? " " + correctedInterim : ""),
+        );
       };
 
       recognition.onend = () => {
