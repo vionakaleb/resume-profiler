@@ -55,7 +55,7 @@ export const SKILL_DICTIONARY = {
   },
   bootstrap: { display: "Bootstrap", mishearings: [] },
   webpack: { display: "Webpack", mishearings: ["web pack"] },
-  vite: { display: "Vite", mishearings: ["veet", "veet js", "fight"] },
+  vite: { display: "Vite", mishearings: ["veet", "veet js", "feet", "fight"] },
   jest: { display: "Jest", mishearings: ["just"] },
   cypress: { display: "Cypress", mishearings: [] },
   playwright: {
