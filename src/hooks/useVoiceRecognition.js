@@ -7,22 +7,20 @@ const SCORE_COMMANDS = [
   "score cv",
 ];
 
-function isScoreCommand(transcript) {
-  const normalized = transcript.toLowerCase().trim();
-  return SCORE_COMMANDS.some((cmd) => normalized.includes(cmd));
+function detectScoreCommand(text) {
+  const normalized = text.toLowerCase().trim();
+  for (const cmd of SCORE_COMMANDS) {
+    if (normalized.includes(cmd)) return cmd;
+  }
+  return null;
 }
 
-function extractJobDescription(transcript) {
-  const normalized = transcript.toLowerCase().trim();
-  for (const cmd of SCORE_COMMANDS) {
-    const commandIndex = normalized.indexOf(cmd);
-    if (commandIndex !== -1) {
-      const beforeCommand = transcript.slice(0, commandIndex).trim();
-      const afterCommand = transcript.slice(commandIndex + cmd.length).trim();
-      return beforeCommand || afterCommand;
-    }
-  }
-  return transcript.trim();
+function stripCommand(text, command) {
+  const index = text.toLowerCase().indexOf(command);
+  if (index === -1) return text.trim();
+  const before = text.slice(0, index).trim();
+  const after = text.slice(index + command.length).trim();
+  return [before, after].filter(Boolean).join(" ");
 }
 
 function createSpeechRecognition() {
@@ -37,81 +35,90 @@ function createSpeechRecognition() {
   return recognition;
 }
 
-export function useVoiceRecognition({ onTranscript, onScoreCommand }) {
+export function useVoiceRecognition({ onTextChange, onScoreCommand }) {
   const [isListening, setIsListening] = useState(false);
   const [interimText, setInterimText] = useState("");
   const [isSupported] = useState(
     () => !!(window.SpeechRecognition || window.webkitSpeechRecognition),
   );
   const recognitionRef = useRef(null);
-  const finalTranscriptRef = useRef("");
+  const preExistingTextRef = useRef("");
 
-  const startListening = useCallback(() => {
-    if (!isSupported) return;
+  const startListening = useCallback(
+    (existingText) => {
+      if (!isSupported) return;
 
-    const recognition = createSpeechRecognition();
-    if (!recognition) return;
+      const recognition = createSpeechRecognition();
+      if (!recognition) return;
 
-    recognitionRef.current = recognition;
-    finalTranscriptRef.current = "";
+      recognitionRef.current = recognition;
+      preExistingTextRef.current = existingText || "";
 
-    recognition.onresult = (event) => {
-      let finalText = "";
-      let interimPart = "";
+      recognition.onresult = (event) => {
+        let finalPart = "";
+        let interimPart = "";
 
-      for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          finalText += result[0].transcript;
-        } else {
-          interimPart += result[0].transcript;
+        for (let i = 0; i < event.results.length; i++) {
+          const segment = event.results[i];
+          if (segment.isFinal) {
+            finalPart += segment[0].transcript;
+          } else {
+            interimPart += segment[0].transcript;
+          }
         }
-      }
 
-      finalTranscriptRef.current = finalText;
-      setInterimText(interimPart);
+        setInterimText(interimPart);
 
-      const fullTranscript = finalText + interimPart;
-      if (isScoreCommand(fullTranscript)) {
-        recognition.stop();
-        const jobText = extractJobDescription(finalText);
-        onScoreCommand?.(jobText);
-      }
-    };
+        const spokenSoFar = finalPart + interimPart;
+        const command = detectScoreCommand(spokenSoFar);
 
-    recognition.onend = () => {
-      setIsListening(false);
-      setInterimText("");
-      const transcript = finalTranscriptRef.current.trim();
-      if (transcript) {
-        onTranscript?.(transcript);
-      }
-    };
+        if (command) {
+          recognition.stop();
+          const cleanSpoken = stripCommand(finalPart, command);
+          const merged = mergeText(preExistingTextRef.current, cleanSpoken);
+          onTextChange?.(merged);
+          onScoreCommand?.(merged);
+          return;
+        }
 
-    recognition.onerror = (event) => {
-      if (event.error !== "aborted") {
-        console.error("Speech recognition error:", event.error);
-      }
-      setIsListening(false);
-      setInterimText("");
-    };
+        const merged = mergeText(preExistingTextRef.current, finalPart);
+        onTextChange?.(merged + (interimPart ? " " + interimPart : ""));
+      };
 
-    recognition.start();
-    setIsListening(true);
-  }, [isSupported, onTranscript, onScoreCommand]);
+      recognition.onend = () => {
+        setIsListening(false);
+        setInterimText("");
+      };
+
+      recognition.onerror = (event) => {
+        if (event.error !== "aborted") {
+          console.error("Speech recognition error:", event.error);
+        }
+        setIsListening(false);
+        setInterimText("");
+      };
+
+      recognition.start();
+      setIsListening(true);
+    },
+    [isSupported, onTextChange, onScoreCommand],
+  );
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
     setIsListening(false);
   }, []);
 
-  const toggleListening = useCallback(() => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  }, [isListening, startListening, stopListening]);
+  const toggleListening = useCallback(
+    (existingText) => {
+      if (isListening) {
+        stopListening();
+      } else {
+        startListening(existingText);
+      }
+    },
+    [isListening, startListening, stopListening],
+  );
 
   return {
     isListening,
@@ -121,4 +128,11 @@ export function useVoiceRecognition({ onTranscript, onScoreCommand }) {
     stopListening,
     toggleListening,
   };
+}
+
+function mergeText(existing, spoken) {
+  if (!existing) return spoken.trim();
+  if (!spoken) return existing.trim();
+  const separator = existing.endsWith("\n") ? "" : "\n";
+  return existing.trim() + separator + spoken.trim();
 }

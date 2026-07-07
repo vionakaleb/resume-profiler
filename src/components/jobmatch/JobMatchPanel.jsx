@@ -94,35 +94,29 @@ export default function JobMatchPanel({ data }) {
     [data, job],
   );
 
+  const handleTextChange = useCallback((newText) => {
+    setJob(newText);
+  }, []);
+
   const handleScoreCommand = useCallback(
-    (spokenJobText) => {
-      if (spokenJobText && spokenJobText.trim().length >= 30) {
-        setJob(spokenJobText);
-      }
-      const textToUse =
-        spokenJobText && spokenJobText.trim().length >= 30
-          ? spokenJobText
-          : job;
-      if (textToUse.trim().length < 30) return;
-      const scored = scoreResume(data, textToUse);
+    (currentText) => {
+      if (currentText.trim().length < 30) return;
+      const scored = scoreResume(data, currentText);
       setResult(scored);
       speakResult(scored);
     },
-    [data, job, speakResult],
+    [data, speakResult],
   );
-
-  const handleTranscript = useCallback((transcript) => {
-    setJob((previous) => {
-      const combined = previous ? previous + " " + transcript : transcript;
-      return combined;
-    });
-  }, []);
 
   const { isListening, interimText, isSupported, toggleListening } =
     useVoiceRecognition({
-      onTranscript: handleTranscript,
+      onTextChange: handleTextChange,
       onScoreCommand: handleScoreCommand,
     });
+
+  const handleMicToggle = () => {
+    toggleListening(job);
+  };
 
   const handleReadResult = () => {
     if (isSpeaking) {
@@ -139,39 +133,51 @@ export default function JobMatchPanel({ data }) {
           Job Description Match
         </h2>
         <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-          Paste a job post to see how your resume lines up. This is a keyword
-          coverage estimate, not a real applicant tracking system.
+          Paste a job post or{" "}
+          {isSupported && (
+            <span className="font-medium text-brand-600 dark:text-brand-300">
+              dictate it by voice
+            </span>
+          )}
+          {isSupported && " "}
+          to see how your resume lines up. This is a keyword coverage estimate,
+          not a real applicant tracking system.
         </p>
 
         <div className="relative mt-3">
           <textarea
-            className="input-base min-h-[160px] w-full flex-none resize-y leading-relaxed pr-12"
+            className="input-base min-h-[160px] w-full flex-none resize-y pr-12 leading-relaxed"
             placeholder="Paste the full job description here..."
             value={job}
             onChange={(event) => setJob(event.target.value)}
           />
           {isSupported && (
             <div className="absolute right-2 top-2">
-              <MicButton isListening={isListening} onClick={toggleListening} />
+              <MicButton isListening={isListening} onClick={handleMicToggle} />
             </div>
           )}
         </div>
 
         {isListening && (
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 dark:bg-brand-500/10">
             <span className="h-2 w-2 animate-pulse rounded-full bg-rose-500" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              Listening... Say{" "}
+            <span className="text-xs text-slate-600 dark:text-slate-300">
+              Listening... Dictate your job description, then say{" "}
               <span className="font-semibold text-brand-600 dark:text-brand-300">
                 &quot;Score my resume&quot;
               </span>{" "}
-              to run the match.
+              or{" "}
+              <span className="font-semibold text-brand-600 dark:text-brand-300">
+                &quot;Score my CV&quot;
+              </span>
             </span>
           </div>
         )}
 
         {interimText && isListening && (
-          <p className="mt-1 text-xs italic text-slate-400">{interimText}</p>
+          <p className="mt-1 rounded bg-slate-50 px-2 py-1 text-xs italic text-slate-400 dark:bg-slate-800">
+            {interimText}
+          </p>
         )}
 
         <Button
