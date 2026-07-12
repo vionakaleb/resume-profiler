@@ -4,6 +4,7 @@ import Button from "./ui/Button.jsx";
 import { parseLinkedInPdf } from "../lib/linkedinParser.js";
 import { parseResumePdf } from "../lib/resumePdfParser.js";
 import { exportResumePdf } from "../lib/exportPdf.jsx";
+import { exportResumeDocx } from "../lib/exportDocx.js";
 import { useAuth } from "../auth/AuthContext.jsx";
 
 export default function Toolbar({
@@ -21,6 +22,7 @@ export default function Toolbar({
   const jsonInput = useRef(null);
   const [status, setStatus] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const [exportingDocx, setExportingDocx] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
@@ -111,6 +113,22 @@ export default function Toolbar({
     }
   };
 
+  const handleExportDocx = async () => {
+    setExportingDocx(true);
+    setStatus({ kind: "info", text: "Generating DOCX..." });
+    try {
+      await exportResumeDocx(data);
+      setStatus({ kind: "ok", text: "DOCX saved." });
+    } catch (error) {
+      setStatus({
+        kind: "error",
+        text: error.message || "Could not generate DOCX.",
+      });
+    } finally {
+      setExportingDocx(false);
+    }
+  };
+
   const handleReset = () => {
     const confirmed = window.confirm(
       "Reset all resume data to the initial state? This will erase your current edits and cannot be undone.",
@@ -166,7 +184,9 @@ export default function Toolbar({
             ATS Resume Builder
           </p>
           {status ? (
-            <p className={`text-[11px] font-medium ${statusColor[status.kind]}`}>
+            <p
+              className={`text-[11px] font-medium ${statusColor[status.kind]}`}
+            >
               {status.text}
             </p>
           ) : saveLabel ? (
@@ -233,6 +253,14 @@ export default function Toolbar({
           disabled={exporting}
         >
           {exporting ? "Generating..." : "Export PDF"}
+        </Button>
+        <Button
+          className="px-2 py-1 md:px-4 md:py-2"
+          variant="subtle"
+          onClick={handleExportDocx}
+          disabled={exportingDocx}
+        >
+          {exportingDocx ? "Generating..." : "Export DOCX"}
         </Button>
         <Button
           className="px-2 py-1 md:px-4 md:py-2"
