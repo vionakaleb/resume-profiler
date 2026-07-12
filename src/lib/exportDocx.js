@@ -134,16 +134,17 @@ function buildContactLinks(data) {
 }
 
 function sectionHeading(title) {
+  console.log(title, "title")
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
     spacing: { before: 240, after: 80 },
-    border: {
-      bottom: {
-        style: BorderStyle.SINGLE,
-        size: 6,
-        color: BRAND_COLOR,
-      },
-    },
+    // border: {
+    //   bottom: {
+    //     style: BorderStyle.SINGLE,
+    //     size: 6,
+    //     color: BRAND_COLOR,
+    //   },
+    // },
     children: [
       new TextRun({
         text: title.toUpperCase(),
@@ -193,7 +194,7 @@ function buildEntryParagraphs(entry) {
     paragraphs.push(
       new Paragraph({
         spacing: { before: 120, after: 0 },
-        border: { bottom: { style: BorderStyle.NONE } },
+        // border: { bottom: { style: BorderStyle.NONE } },
         tabStops: [
           {
             type: TabStopType.RIGHT,
@@ -242,7 +243,7 @@ function buildEntryParagraphs(entry) {
     paragraphs.push(
       new Paragraph({
         spacing: { before: 40, after: 40 },
-        border: { bottom: { style: BorderStyle.NONE } },
+        // border: { bottom: { style: BorderStyle.NONE } },
         children: subRuns,
       }),
     );
@@ -253,7 +254,7 @@ function buildEntryParagraphs(entry) {
     paragraphs.push(
       new Paragraph({
         spacing: { before: 20, after: 20 },
-        border: { bottom: { style: BorderStyle.NONE } },
+        // border: { bottom: { style: BorderStyle.NONE } },
         indent: { left: convertInchesToTwip(0.25) },
         children: [
           new TextRun({
