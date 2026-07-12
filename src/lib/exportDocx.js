@@ -134,17 +134,10 @@ function buildContactLinks(data) {
 }
 
 function sectionHeading(title) {
-  console.log(title, "title")
+  console.log(title, "title");
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
     spacing: { before: 240, after: 80 },
-    border: {
-      bottom: {
-        style: BorderStyle.SINGLE,
-        size: 1,
-        color: BRAND_COLOR,
-      },
-    },
     children: [
       new TextRun({
         text: title.toUpperCase(),
@@ -153,6 +146,13 @@ function sectionHeading(title) {
         bold: true,
         color: BRAND_COLOR,
         characterSpacing: 60,
+        border: {
+          bottom: {
+            style: BorderStyle.SINGLE,
+            size: 6,
+            color: BRAND_COLOR,
+          },
+        },
       }),
     ],
   });
