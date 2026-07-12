@@ -193,6 +193,7 @@ function buildEntryParagraphs(entry) {
     paragraphs.push(
       new Paragraph({
         spacing: { before: 120, after: 0 },
+        border: { bottom: { style: BorderStyle.NONE } },
         tabStops: [
           {
             type: TabStopType.RIGHT,
@@ -241,6 +242,7 @@ function buildEntryParagraphs(entry) {
     paragraphs.push(
       new Paragraph({
         spacing: { before: 40, after: 40 },
+        border: { bottom: { style: BorderStyle.NONE } },
         children: subRuns,
       }),
     );
@@ -251,6 +253,7 @@ function buildEntryParagraphs(entry) {
     paragraphs.push(
       new Paragraph({
         spacing: { before: 20, after: 20 },
+        border: { bottom: { style: BorderStyle.NONE } },
         indent: { left: convertInchesToTwip(0.25) },
         children: [
           new TextRun({
