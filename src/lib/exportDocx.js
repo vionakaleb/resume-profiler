@@ -142,7 +142,7 @@ function sectionHeading(title) {
           border: {
             bottom: {
               style: BorderStyle.SINGLE,
-              size: 1,
+              size: 6,
               color: BRAND_COLOR,
             },
           },

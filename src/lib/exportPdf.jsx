@@ -50,6 +50,10 @@ const styles = StyleSheet.create({
     color: "#1e3a5f",
     textDecoration: "underline",
   },
+  inlineLink: {
+    color: "#1e3a5f",
+    textDecoration: "underline",
+  },
   section: {
     fontSize: 12,
     fontFamily: "Helvetica-Bold",
@@ -125,7 +129,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export const filled = (value) => typeof value === "string" && value.trim().length > 0;
+export const filled = (value) =>
+  typeof value === "string" && value.trim().length > 0;
 
 export function normalizeUrl(url) {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
@@ -133,6 +138,26 @@ export function normalizeUrl(url) {
 
 function displayUrl(url) {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+}
+
+const URL_REGEX = /(https?:\/\/[^\s]+)/gi;
+
+function linkify(text) {
+  if (!filled(text)) return text;
+  const parts = text.split(URL_REGEX);
+  if (parts.length === 1) return text;
+
+  // text.split() with a capturing regex interleaves literals (even indices)
+  // and captured matches (odd indices).
+  return parts.map((part, index) =>
+    index % 2 === 1 ? (
+      <Link key={index} src={part} style={styles.inlineLink}>
+        {part}
+      </Link>
+    ) : (
+      <Text key={index}>{part}</Text>
+    ),
+  );
 }
 
 function entryHasContent(entry) {
@@ -213,7 +238,7 @@ function Entry({ entry }) {
           )}
           {filled(entry.org) && filled(entry.location) && <Text>{SEP}</Text>}
           {filled(entry.location) && (
-            <Text style={styles.entryLoc}>{entry.location}</Text>
+            <Text style={styles.entryLoc}>{linkify(entry.location)}</Text>
           )}
         </Text>
       )}
@@ -221,7 +246,7 @@ function Entry({ entry }) {
       {bullets.map((bullet, index) => (
         <View key={index} style={styles.bulletRow}>
           <Text style={styles.bulletDot}>•</Text>
-          <Text style={styles.bulletText}>{bullet}</Text>
+          <Text style={styles.bulletText}>{linkify(bullet)}</Text>
         </View>
       ))}
     </View>
