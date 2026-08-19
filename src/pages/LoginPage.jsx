@@ -31,14 +31,16 @@ export default function LoginPage() {
   return (
     <div className="app-bg flex min-h-screen items-center justify-center px-4">
       <div className="panel w-full max-w-md rounded-2xl p-8 shadow-sm">
-        <h1 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
+        <h1 className="text-center text-2xl font-extrabold text-slate-800 dark:text-slate-100">
+          Reesu
+        </h1>
+        <p className="text-center mt-1 text-sm text-slate-500 dark:text-slate-400">
+          ATS Resume Generator
+        </p>
+        <h1 className="mt-2 text-xl font-extrabold text-slate-800 dark:text-slate-100">
           Sign in
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Welcome back. Sign in to edit your resume.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <TextField
             label="Email"
             value={email}
@@ -72,7 +74,10 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
           New here?{" "}
-          <Link to="/register" className="font-semibold text-brand-500 hover:underline">
+          <Link
+            to="/register"
+            className="font-semibold text-brand-500 hover:underline"
+          >
             Create an account
           </Link>
         </p>
