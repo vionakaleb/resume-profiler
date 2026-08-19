@@ -35,7 +35,7 @@ export default function LoginPage() {
           Reesu
         </h1>
         <p className="text-center mt-1 text-sm text-slate-500 dark:text-slate-400">
-          ATS Resume Generator
+          ATS Resume Builder
         </p>
         <h1 className="mt-2 text-xl font-extrabold text-slate-800 dark:text-slate-100">
           Sign in
