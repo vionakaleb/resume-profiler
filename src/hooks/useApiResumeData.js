@@ -116,6 +116,34 @@ export function useApiResumeData() {
     }
   }, []);
 
+  const deleteResume = useCallback(async (id) => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      await resumesApi.deleteResume(id);
+
+      // Refresh the resumes list
+      const updatedList = await resumesApi.listResumes();
+      setResumes(updatedList);
+
+      if (id === resumeId) {
+        if (updatedList.length > 0) {
+          const first = updatedList[0];
+          const full = await resumesApi.getResume(first.id);
+          setResumeId(full.id);
+          setData(withDefaults(full.content));
+        } else {
+          setResumeId(null);
+          setData(clone(initialData));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to delete resume:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [resumeId]);
+
   const update = useCallback((updater) => {
     setData((current) => {
       const draft = clone(current);
@@ -136,5 +164,5 @@ export function useApiResumeData() {
     setData(clone(initialData));
   }, []);
 
-  return { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume, createResume };
+  return { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume, createResume, deleteResume };
 }

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./ui/Button.jsx";
 import { parseLinkedInPdf } from "../lib/linkedinParser.js";
@@ -21,6 +22,7 @@ export default function Toolbar({
   onSwitchResume,
   onSave,
   onCreateResume,
+  onDeleteResume,
 }) {
   const pdfInput = useRef(null);
   const resumePdfInput = useRef(null);
@@ -212,6 +214,11 @@ export default function Toolbar({
                 onCreateResume(true);
               } else if (value === "create-private") {
                 onCreateResume(false);
+              } else if (value.startsWith("delete-")) {
+                const id = value.replace("delete-", "");
+                if (window.confirm("Are you sure you want to delete this resume? This action cannot be undone.")) {
+                  onDeleteResume(id);
+                }
               } else {
                 onSwitchResume(value);
               }
@@ -223,9 +230,14 @@ export default function Toolbar({
             </option>
             <optgroup label="My Resumes">
               {resumes.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.title} {r.is_public ? "(Public)" : "(Private)"}
-                </option>
+                <React.Fragment key={r.id}>
+                  <option value={r.id}>
+                    {r.title} {r.is_public ? "(Public)" : "(Private)"}
+                  </option>
+                  <option value={`delete-${r.id}`} className="text-rose-600">
+                    🗑️ Delete {r.title}
+                  </option>
+                </React.Fragment>
               ))}
             </optgroup>
             {(!resumes.some((r) => r.is_public) ||

@@ -22,7 +22,7 @@ const SAVE_LABEL = {
 
 export default function EditorPage() {
   const { theme, toggleTheme } = useTheme();
-  const { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume, createResume } =
+  const { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume, createResume, deleteResume } =
     useApiResumeData();
   const { user } = useAuth();
   const [tab, setTab] = useState("edit");
@@ -56,6 +56,7 @@ export default function EditorPage() {
         onSwitchResume={switchResume}
         onSave={saveResume}
         onCreateResume={createResume}
+        onDeleteResume={deleteResume}
       />
 
       <nav className="no-print flex gap-1 border-b border-slate-200 bg-white px-3 py-2 lg:hidden dark:border-slate-800 dark:bg-slate-900">
