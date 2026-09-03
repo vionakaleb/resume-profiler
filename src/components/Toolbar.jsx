@@ -320,7 +320,7 @@ export default function Toolbar({
         </Button>
         <Button
           className="px-2 py-1 md:px-4 md:py-2"
-          variant="subtle"
+          variant="primary"
           onClick={handleExportDocx}
           disabled={exportingDocx}
         >
