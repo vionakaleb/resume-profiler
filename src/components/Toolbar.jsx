@@ -222,25 +222,25 @@ export default function Toolbar({
               Select resume...
             </option>
             <optgroup label="My Resumes">
-              {resumes.map(
-                (r) => (
-                  r.is_public ? (
-                    <option value="create-private">
-                      ➕ Create Private Resume
-                    </option>
-                  ) : (
-                    <option value="create-public">
-                      ➕ Create Public Resume
-                    </option>
-                  ),
-                  (
-                    <option key={r.id} value={r.id}>
-                      {r.title} {r.is_public ? "(Public)" : "(Private)"}
-                    </option>
-                  )
-                ),
-              )}
+              {resumes.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.title} {r.is_public ? "(Public)" : "(Private)"}
+                </option>
+              ))}
             </optgroup>
+            {(!resumes.some((r) => r.is_public) ||
+              !resumes.some((r) => !r.is_public)) && (
+              <optgroup label="Actions">
+                {!resumes.some((r) => r.is_public) && (
+                  <option value="create-public">➕ Create Public Resume</option>
+                )}
+                {!resumes.some((r) => !r.is_public) && (
+                  <option value="create-private">
+                    ➕ Create Private Resume
+                  </option>
+                )}
+              </optgroup>
+            )}
           </select>
           <Button
             className="px-2 py-1 md:px-4 md:py-2"
