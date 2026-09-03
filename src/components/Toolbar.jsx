@@ -16,6 +16,10 @@ export default function Toolbar({
   onReset,
   saveLabel,
   publicUrl,
+  resumes,
+  resumeId,
+  onSwitchResume,
+  onSave,
 }) {
   const pdfInput = useRef(null);
   const resumePdfInput = useRef(null);
@@ -198,6 +202,26 @@ export default function Toolbar({
       </div>
 
       <div className="flex flex-row flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 mr-2">
+          <select
+            value={resumeId || ""}
+            onChange={(e) => onSwitchResume(e.target.value)}
+            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-700 outline-none hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            {resumes.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.title} {r.is_public ? "(Public)" : "(Private)"}
+              </option>
+            ))}
+          </select>
+          <Button
+            className="px-2 py-1 md:px-4 md:py-2"
+            variant="primary"
+            onClick={onSave}
+          >
+            Save
+          </Button>
+        </div>
         <input
           ref={pdfInput}
           type="file"

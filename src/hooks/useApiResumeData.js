@@ -26,6 +26,7 @@ const SAVE_DEBOUNCE_MS = 800;
 export function useApiResumeData() {
   const [data, setData] = useState(() => clone(initialData));
   const [resumeId, setResumeId] = useState(null);
+  const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState("idle");
   const saveTimer = useRef(null);
@@ -35,11 +36,12 @@ export function useApiResumeData() {
     let cancelled = false;
     (async () => {
       try {
-        const resumes = await resumesApi.listResumes();
+        const resumesList = await resumesApi.listResumes();
         if (cancelled) return;
+        setResumes(resumesList);
 
-        if (Array.isArray(resumes) && resumes.length > 0) {
-          const first = resumes[0];
+        if (Array.isArray(resumesList) && resumesList.length > 0) {
+          const first = resumesList[0];
           const full = await resumesApi.getResume(first.id);
           if (cancelled) return;
           setResumeId(full.id);
@@ -67,31 +69,30 @@ export function useApiResumeData() {
     };
   }, []);
 
-  useEffect(() => {
-    if (loading || !resumeId) return;
-    if (skipNextSave.current) {
-      skipNextSave.current = false;
-      return;
+  const saveResume = useCallback(async () => {
+    if (!resumeId) return;
+    try {
+      setSaveState("saving");
+      await resumesApi.updateResume(resumeId, { content: data });
+      setSaveState("saved");
+    } catch (error) {
+      console.error("Failed to save resume:", error);
+      setSaveState("error");
     }
+  }, [data, resumeId]);
 
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    setSaveState("pending");
-
-    saveTimer.current = setTimeout(async () => {
-      try {
-        setSaveState("saving");
-        await resumesApi.updateResume(resumeId, { content: data });
-        setSaveState("saved");
-      } catch (error) {
-        console.error("Failed to save resume:", error);
-        setSaveState("error");
-      }
-    }, SAVE_DEBOUNCE_MS);
-
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-    };
-  }, [data, resumeId, loading]);
+  const switchResume = useCallback(async (id) => {
+    try {
+      setLoading(true);
+      const full = await resumesApi.getResume(id);
+      setResumeId(full.id);
+      setData(withDefaults(full.content));
+    } catch (error) {
+      console.error("Failed to switch resume:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const update = useCallback((updater) => {
     setData((current) => {
@@ -113,5 +114,5 @@ export function useApiResumeData() {
     setData(clone(initialData));
   }, []);
 
-  return { data, update, importParsed, loadJson, resetData, loading, saveState };
+  return { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume };
 }
