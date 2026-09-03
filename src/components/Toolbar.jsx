@@ -20,6 +20,7 @@ export default function Toolbar({
   resumeId,
   onSwitchResume,
   onSave,
+  onCreateResume,
 }) {
   const pdfInput = useRef(null);
   const resumePdfInput = useRef(null);
@@ -205,14 +206,30 @@ export default function Toolbar({
         <div className="flex items-center gap-2 mr-2">
           <select
             value={resumeId || ""}
-            onChange={(e) => onSwitchResume(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "create-public") {
+                onCreateResume(true);
+              } else if (value === "create-private") {
+                onCreateResume(false);
+              } else {
+                onSwitchResume(value);
+              }
+            }}
             className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-700 outline-none hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
-            {resumes.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.title} {r.is_public ? "(Public)" : "(Private)"}
-              </option>
-            ))}
+            <option value="" disabled>Select resume...</option>
+            <optgroup label="My Resumes">
+              {resumes.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.title} {r.is_public ? "(Public)" : "(Private)"}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Actions">
+              <option value="create-public">➕ Create Public Resume</option>
+              <option value="create-private">➕ Create Private Resume</option>
+            </optgroup>
           </select>
           <Button
             className="px-2 py-1 md:px-4 md:py-2"

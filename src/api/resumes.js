@@ -4,11 +4,11 @@ export async function listResumes() {
   return request("/resumes", { method: "GET", auth: true });
 }
 
-export async function createResume({ title, content }) {
+export async function createResume({ title, content, isPublic = false }) {
   return request("/resumes", {
     method: "POST",
     auth: true,
-    body: { title, content },
+    body: { title, content, is_public: isPublic },
   });
 }
 

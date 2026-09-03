@@ -94,6 +94,28 @@ export function useApiResumeData() {
     }
   }, []);
 
+  const createResume = useCallback(async (isPublic) => {
+    try {
+      setLoading(true);
+      const created = await resumesApi.createResume({
+        title: isPublic ? "Public Resume" : "Private Resume",
+        content: clone(initialData),
+        isPublic,
+      });
+
+      // Refresh the resumes list
+      const updatedList = await resumesApi.listResumes();
+      setResumes(updatedList);
+
+      setResumeId(created.id);
+      setData(withDefaults(created.content));
+    } catch (error) {
+      console.error("Failed to create resume:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const update = useCallback((updater) => {
     setData((current) => {
       const draft = clone(current);
@@ -114,5 +136,5 @@ export function useApiResumeData() {
     setData(clone(initialData));
   }, []);
 
-  return { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume };
+  return { data, update, importParsed, loadJson, resetData, loading, saveState, resumes, resumeId, switchResume, saveResume, createResume };
 }
